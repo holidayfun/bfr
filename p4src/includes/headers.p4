@@ -4,15 +4,18 @@ header_type bier_t {
     Ver : 4;
     Len : 4;
     Entropy : 20;
-    BitString : *;
+    BitString : 64;
     OAM : 2;
     Reserved : 10;
     Proto : 4;
     BFIR_id : 16;
   }
-  /* Length of 2^(Len + 5) = 2 << (Len + 4) bits of BitString + 64 Bit for other fields */
+  /* For now use fixed length BitString
+
+  Length of 2^(Len + 5) = 2 << (Len + 4) bits of BitString + 64 Bit for other fields
   length : ((2 << (Len + 4)) + 64) ;
   max_length : 4160;
+  */
 }
 
 header_type ethernet_t {
