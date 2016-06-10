@@ -11,7 +11,7 @@ header_type bier_t {
     BFIR_id : 16;
   }
   length: 32 + 2^(Len + 5) + 32 ; /* 32 bit vor  BitString, Länge des BitString, 32 Bit nach BitString */
-  max_length: 32 + 2^(7 + 5) + 32 ;
+  max_length: 4160;
 }
 
 header_type ethernet_t {
