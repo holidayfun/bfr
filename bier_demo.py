@@ -48,72 +48,34 @@ class BFR_Topo(Topo):
         # Initialize topology and default options
         Topo.__init__(self, **opts)
 
-        switch_names = ['A', 'B', 'C', 'D', 'E', 'F']
-        name_to_nbr = {'A' : 1, 'B' : 2, 'C' : 3, 'D' : 4, 'E' : 5, 'F' : 6}
+
+def main():
+    num_hosts = args.num_hosts
+    #print "Topo created"
+    net = Mininet(host = P4Host,
+                  switch = P4Switch,
+                  controller = None )
+
+    switch_names = ['A', 'B', 'C', 'D', 'E', 'F']
+    name_to_nbr = {'A' : 1, 'B' : 2, 'C' : 3, 'D' : 4, 'E' : 5, 'F' : 6}
 
 
-        links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
+    links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
 
-        switches = {}
-
-        for name in switch_names:
-            switches[name] = self.addSwitch("s%d" % name_to_nbr[name],
-                                    sw_path = sw_path,
-                                    thrift_port = thrift_port,
-                                    pcap_dump = True)
-
-        #establish links
-        for link in links:
-            self.addLink(switches[link[0]], switches[link[1]])
-
-
-
-class SingleSwitchTopo(Topo):
-    "Single switch connected to n (< 256) hosts."
-    def __init__(self, sw_path, thrift_port, n, **opts):
-        # Initialize topology and default options
-        Topo.__init__(self, **opts)
-
-        switch = self.addSwitch('s1',
+    switches = {}
+    info( '*** Creating switches\n' )
+    for name in switch_names:
+        switches[name] = self.addSwitch("s%d" % name_to_nbr[name],
                                 sw_path = sw_path,
                                 thrift_port = thrift_port,
                                 pcap_dump = True)
 
-        for h in xrange(n):
-            host = self.addHost('h%d' % (h + 1),
-                                ip = "10.0.%d.10/24" % h,
-                                mac = '00:04:00:00:00:%02x' %h)
+    #establish links
+    info( '*** Creating links\n' )
+    for link in links:
+        self.addLink(switches[link[0]], switches[link[1]])
 
-            self.addLink(host, switch)
-
-def main():
-    num_hosts = args.num_hosts
-
-    topo = BFR_Topo(args.behavioral_exe,
-                            args.thrift_port,
-                            num_hosts
-    )
-    #print "Topo created"
-    net = Mininet(topo = topo,
-                  host = P4Host,
-                  switch = P4Switch,
-                  controller = None )
-    #print "net created!"
     net.start()
-    #print "net started"
-
-    # sw_mac = ["00:aa:bb:00:00:%02x" % n for n in xrange(num_hosts)]
-    #
-    # sw_addr = ["10.0.%d.1" % n for n in xrange(num_hosts)]
-    #
-    # for n in xrange(num_hosts):
-    #     h = net.get('h%d' % (n + 1))
-    #     h.setARP(sw_addr[n], sw_mac[n])
-    #     h.setDefaultRoute("dev eth0 via %s" % sw_addr[n])
-    #
-    # for n in xrange(num_hosts):
-    #     h = net.get('h%d' % (n + 1))
-    #     h.describe()
 
     sleep(1)
 
