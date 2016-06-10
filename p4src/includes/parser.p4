@@ -1,8 +1,4 @@
 parser start {
-  return parse_bier;
-}
-
-parser start {
     return parse_ethernet;
 }
 /* BIER doesn't have an specific ethertype */
