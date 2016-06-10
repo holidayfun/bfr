@@ -51,6 +51,7 @@ class BFR_Topo(Topo):
 
 def main():
     num_hosts = args.num_hosts
+    sw_path = args.behavioral_exe
     #print "Topo created"
     net = Mininet(host = P4Host,
                   switch = P4Switch,
