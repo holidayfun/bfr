@@ -10,7 +10,7 @@ header_type bier_t {
     Proto : 4;
     BFIR_id : 16;
   }
-  length: (2 << (Len + 5)) + 64 ;
+  length: 64 + 64 ;
   max_length: 4160;
 }
 
