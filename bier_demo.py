@@ -49,13 +49,15 @@ class BFR_Topo(Topo):
         Topo.__init__(self, **opts)
 
         switch_names = ['A', 'B', 'C', 'D', 'E', 'F']
+        name_to_nbr = {'A' : 1, 'B' : 2, 'C' : 3, 'D' : 4, 'E' : 5, 'F' : 6}
+
 
         links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
 
         switches = {}
 
         for name in switch_names:
-            switches[name] = self.addSwitch(name,
+            switches[name] = self.addSwitch("s%d" % name_to_nbr(name),
                                     sw_path = sw_path,
                                     thrift_port = thrift_port,
                                     pcap_dump = True)
@@ -103,7 +105,7 @@ def main():
     # sw_mac = ["00:aa:bb:00:00:%02x" % n for n in xrange(num_hosts)]
     #
     # sw_addr = ["10.0.%d.1" % n for n in xrange(num_hosts)]
-    # 
+    #
     # for n in xrange(num_hosts):
     #     h = net.get('h%d' % (n + 1))
     #     h.setARP(sw_addr[n], sw_mac[n])
