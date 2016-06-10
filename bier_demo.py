@@ -57,7 +57,7 @@ class BFR_Topo(Topo):
         switches = {}
 
         for name in switch_names:
-            switches[name] = self.addSwitch("s%d" % name_to_nbr(name),
+            switches[name] = self.addSwitch("s%d" % name_to_nbr[name],
                                     sw_path = sw_path,
                                     thrift_port = thrift_port,
                                     pcap_dump = True)
