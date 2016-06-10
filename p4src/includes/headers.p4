@@ -26,13 +26,13 @@ header_type ipv4_t {
     version : 4;
     ihl : 4;
     diffserv : 8;
-    totallen : 16;
+    totalLen : 16;
     identification : 16;
     flags : 3;
     fragOffset : 13;
     ttl : 8;
     protocol : 8;
-    hdrCecksum : 16;
+    hdrChecksum : 16;
     srcAddr : 32;
     dstAddr : 32;
   }
