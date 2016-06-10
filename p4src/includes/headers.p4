@@ -10,6 +10,7 @@ header_type bier_t {
     Proto : 4;
     BFIR_id : 16;
   }
+  /* Length of 2^(Len + 5) bits of BitString + 64 Bit for other fields */
 }
 
 header_type ethernet_t {
