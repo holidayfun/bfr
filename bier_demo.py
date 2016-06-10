@@ -65,7 +65,7 @@ def main():
     switches = {}
     info( '*** Creating switches\n' )
     for name in switch_names:
-        switches[name] = self.addSwitch("s%d" % name_to_nbr[name],
+        switches[name] = net.addSwitch("s%d" % name_to_nbr[name],
                                 sw_path = sw_path,
                                 thrift_port = thrift_port,
                                 pcap_dump = True)
@@ -73,7 +73,7 @@ def main():
     #establish links
     info( '*** Creating links\n' )
     for link in links:
-        self.addLink(switches[link[0]], switches[link[1]])
+        net.addLink(switches[link[0]], switches[link[1]])
 
     net.start()
 
