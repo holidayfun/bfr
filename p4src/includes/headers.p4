@@ -8,7 +8,7 @@ header_type bier_t {
     OAM : 2;
     Reserved : 10;
     Proto : 4;
-    BFIR-id : 16;
+    BFIR_id : 16;
   }
   length: 32 + 2^(Len + 5) + 32 ; /* 32 bit vor  BitString, Länge des BitString, 32 Bit nach BitString */
 }
