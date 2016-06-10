@@ -4,11 +4,14 @@ header_type bier_t {
     Ver : 4;
     Len : 4;
     Entropy : 20;
+    BitString : *;
     OAM : 2;
     Reserved : 10;
     Proto : 4;
     BFIR_id : 16;
   }
+  length: 2 << (Len + 5) + 64 ; /* 32 bit vor  BitString, Länge des BitString, 32 Bit nach BitString */
+  max_length: 4160;
 }
 
 header_type ethernet_t {
