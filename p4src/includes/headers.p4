@@ -10,7 +10,7 @@ header_type bier_t {
     Proto : 4;
     BFIR_id : 16;
   }
-  length: 2 << (Len + 5) + 64 ; /* 32 bit vor  BitString, Länge des BitString, 32 Bit nach BitString */
+  length: (2 << (Len + 5)) + 64 ; /* 32 bit vor  BitString, Länge des BitString, 32 Bit nach BitString */
   max_length: 4160;
 }
 
