@@ -34,6 +34,36 @@ parser.add_argument('--num-hosts', help='Number of hosts to connect to switch',
 
 args = parser.parse_args()
 
+class BFR_Topo(Topo):
+    """
+    Example topology for a BIER Domain
+     ( A ) ------------ (  B  ) ------------ ( C ) ------------ ( D )
+    4 (0:1000)              \                  \            1 (0:0001)
+                             \                  \
+                             ( E )              ( F )
+                           3 (0:0100)         2 (0:0010)
+    """
+
+    def __init__(self, sw_path, thrift_port, n, **opts):
+        # Initialize topology and default options
+        Topo.__init__(self, **opts)
+
+        switch_names = ['A', 'B', 'C', 'D', 'E', 'F']
+
+        links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
+
+        switches = {}
+
+        for name in switch_names:
+            switches[name] = self.addSwitch(name,
+                                    sw_path = sw_path,
+                                    thrift_port = thrift_port,
+                                    pcap_dump = True)
+
+        #establish links
+        for link in links:
+            self.addLink(switches[link[0]], switches[link[1]])
+
 
 
 class SingleSwitchTopo(Topo):
@@ -57,7 +87,7 @@ class SingleSwitchTopo(Topo):
 def main():
     num_hosts = args.num_hosts
 
-    topo = SingleSwitchTopo(args.behavioral_exe,
+    topo = BFR_Topo(args.behavioral_exe,
                             args.thrift_port,
                             num_hosts
     )
@@ -70,18 +100,18 @@ def main():
     net.start()
     #print "net started"
 
-    sw_mac = ["00:aa:bb:00:00:%02x" % n for n in xrange(num_hosts)]
-
-    sw_addr = ["10.0.%d.1" % n for n in xrange(num_hosts)]
-
-    for n in xrange(num_hosts):
-        h = net.get('h%d' % (n + 1))
-        h.setARP(sw_addr[n], sw_mac[n])
-        h.setDefaultRoute("dev eth0 via %s" % sw_addr[n])
-
-    for n in xrange(num_hosts):
-        h = net.get('h%d' % (n + 1))
-        h.describe()
+    # sw_mac = ["00:aa:bb:00:00:%02x" % n for n in xrange(num_hosts)]
+    #
+    # sw_addr = ["10.0.%d.1" % n for n in xrange(num_hosts)]
+    # 
+    # for n in xrange(num_hosts):
+    #     h = net.get('h%d' % (n + 1))
+    #     h.setARP(sw_addr[n], sw_mac[n])
+    #     h.setDefaultRoute("dev eth0 via %s" % sw_addr[n])
+    #
+    # for n in xrange(num_hosts):
+    #     h = net.get('h%d' % (n + 1))
+    #     h.describe()
 
     sleep(1)
 
