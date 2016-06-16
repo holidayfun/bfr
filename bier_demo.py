@@ -71,6 +71,7 @@ def main():
                                 sw_path = sw_path,
                                 thrift_port = thrift_port,
                                 pcap_dump = True)
+        switches[name].setIP(ip = '192.1.1.%d' % name_to_nbr[name], intf='s%-eth1' %name_to_nbr[name])
 
     #establish links
     info( '*** Creating links\n' )
