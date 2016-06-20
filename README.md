@@ -13,6 +13,13 @@ The Bit Index Forwarding Table [BIFT][3]
 
 
 
+Mininet FAQ:
+
+zur [Python API](https://github.com/mininet/mininet/wiki/FAQ#python-api)
+
+zum [Generieren von Paketen](https://github.com/mininet/mininet/wiki/FAQ#traffic)
+
+
 [1]:https://tools.ietf.org/html/draft-ietf-bier-mpls-encapsulation-04#page-6
 
 [2]:https://tools.ietf.org/html/draft-ietf-bier-architecture-03#section-6.1
