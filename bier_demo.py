@@ -56,7 +56,7 @@ class BFR_Topo(Topo):
         bfrs = {}
         info( '*** Creating BFRs\n' )
         for name in bfr_names:
-            bfrs[name] = self.addNode("s%d" % name_to_dpid[name],
+            bfrs[name] = self.addSwitch("n%d" % name_to_dpid[name],
                                     sw_path = sw_path,
                                     thrift_port = thrift_port + name_to_dpid[name],
                                     pcap_dump = True)
@@ -65,18 +65,20 @@ class BFR_Topo(Topo):
         links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
         for link in links:
             self.addLink(bfrs[link[0]], bfrs[link[1]])
-
-        info( '*** Assigning IPs\n' )
-        bfrs['A'].setIP('10.0.4.1', intf='s1-eth1')
-        bfrs['B'].setIP('10.0.4.2', intf='s2-eth1')
-        bfrs['B'].setIP('10.0.3.1', intf='s2-eth2')
-        bfrs['B'].setIP('10.0.5.1', intf='s2-eth3')
-        bfrs['C'].setIP('10.0.5.2', intf='s3-eth1')
-        bfrs['C'].setIP('10.0.1.1', intf='s3-eth2')
-        bfrs['C'].setIP('10.0.2.1', intf='s3-eth3')
-        bfrs['D'].setIP('10.0.1.2', intf='s4-eth1')
-        bfrs['E'].setIP('10.0.3.2', intf='s5-eth1')
-        bfrs['F'].setIP('10.0.2.2', intf='s6-eth1')
+	print(self.nodeInfo(bfrs['A']))
+        print(self.nodes())
+	print(self.g.node['n1'])
+	info( '*** Assigning IPs\n' )
+        #bfrs['A'].setIP('10.0.4.1', intf='s1-eth1')
+        #bfrs['B'].setIP('10.0.4.2', intf='s2-eth1')
+        #bfrs['B'].setIP('10.0.3.1', intf='s2-eth2')
+        #bfrs['B'].setIP('10.0.5.1', intf='s2-eth3')
+        #bfrs['C'].setIP('10.0.5.2', intf='s3-eth1')
+        #bfrs['C'].setIP('10.0.1.1', intf='s3-eth2')
+        #bfrs['C'].setIP('10.0.2.1', intf='s3-eth3')
+        #bfrs['D'].setIP('10.0.1.2', intf='s4-eth1')
+        #bfrs['E'].setIP('10.0.3.2', intf='s5-eth1')
+        #bfrs['F'].setIP('10.0.2.2', intf='s6-eth1')
 
 
 def main():
@@ -85,9 +87,9 @@ def main():
     thrift_port = args.thrift_port
 
     topo = BFR_Topo(sw_path, thrift_port)
-    net = Mininet(topo = topo)
+    net = Mininet(topo = topo, switch=P4Router)
     net.start()
-
+    print(net.get('n1'))
     # switch_names = ['A', 'B', 'C', 'D', 'E', 'F']
     # name_to_nbr = {'A' : 1, 'B' : 2, 'C' : 3, 'D' : 4, 'E' : 5, 'F' : 6}
     #
@@ -137,17 +139,21 @@ class P4Router(Node):
     thriftPort = 22222
 
     def __init__( self, name, sw_path = "dc_full",
+		  dpid=None,
                   thrift_port = None,
                   pcap_dump = False,
                   verbose = False, **kwargs ):
-        Switch.__init__( self, name, **kwargs )
-        self.sw_path = sw_path
+        Node.__init__( self, name, **kwargs )
+        self.dpid = self.defaultDpid(dpid)
+	self.sw_path = sw_path
         self.verbose = verbose
         logfile = '/tmp/p4ns.%s.log' % self.name
         self.output = open(logfile, 'w')
         self.thrift_port = thrift_port
         self.pcap_dump = pcap_dump
-
+    
+    def defaultDpid(self, dpid=None):
+	pass
     @classmethod
     def setup( cls ):
         pass
