@@ -45,7 +45,7 @@ class BFR_Topo(Topo):
                            3 (0:0100)         2 (0:0010)
     """
 
-    def __init__(self, sw_path, thrift_port, n, **opts):
+    def __init__(self, sw_path, thrift_port, **opts):
         # Initialize topology and default options
         # Each BFR listens on a different Thrift port
         # A-F listen on Port thrift_port + {1-6}
