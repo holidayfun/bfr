@@ -25,6 +25,8 @@ from p4_mininet import P4Switch, P4Host
 import argparse
 from time import sleep
 
+import re
+
 parser = argparse.ArgumentParser(description='Mininet demo')
 parser.add_argument('--behavioral-exe', help='Path to behavioral executable',
                     type=str, action="store", required=True)
@@ -55,19 +57,17 @@ class BFR_Topo(Topo):
         name_to_dpid = {'A' : 1, 'B' : 2, 'C' : 3, 'D' : 4, 'E' : 5, 'F' : 6}
         bfrs = {}
         info( '*** Creating BFRs\n' )
-        for name in bfr_names:
-            bfrs[name] = self.addSwitch("n%d" % name_to_dpid[name],
+        for name in bfr_names:	    
+            bfrs[name] = self.addSwitch("s%d" % name_to_dpid[name],
                                     sw_path = sw_path,
                                     thrift_port = thrift_port + name_to_dpid[name],
                                     pcap_dump = True)
-
+	    #self.addSwitch(bfrs[name])
         info( '*** Creating links\n' )
         links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
         for link in links:
             self.addLink(bfrs[link[0]], bfrs[link[1]])
-	print(self.nodeInfo(bfrs['A']))
-    print(self.nodes())
-	print(self.g.node['n1'])
+	print(self.nodes())
 	info( '*** Assigning IPs\n' )
         #bfrs['A'].setIP('10.0.4.1', intf='s1-eth1')
         #bfrs['B'].setIP('10.0.4.2', intf='s2-eth1')
@@ -79,7 +79,11 @@ class BFR_Topo(Topo):
         #bfrs['D'].setIP('10.0.1.2', intf='s4-eth1')
         #bfrs['E'].setIP('10.0.3.2', intf='s5-eth1')
         #bfrs['F'].setIP('10.0.2.2', intf='s6-eth1')
-
+	
+    def addSwitch(self, name, **opts):
+	if not opts and self.sopts:
+	    opts=self.opts
+	return self.addNode(name, isSwitch=False, **opts)
 
 def main():
     num_hosts = args.num_hosts
@@ -87,64 +91,49 @@ def main():
     thrift_port = args.thrift_port
 
     topo = BFR_Topo(sw_path, thrift_port)
-    net = Mininet(topo = topo, switch=P4Router)
-    net.start()
-    print(net.get('n1'))
-    # switch_names = ['A', 'B', 'C', 'D', 'E', 'F']
-    # name_to_nbr = {'A' : 1, 'B' : 2, 'C' : 3, 'D' : 4, 'E' : 5, 'F' : 6}
-    #
-    #
-    # links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
-    #
-    # switches = {}
-    # info( '*** Creating switches\n' )
-    # for name in switch_names:
-    #     switches[name] = net.addSwitch("s%d" % name_to_nbr[name],
-    #                             sw_path = sw_path,
-    #                             thrift_port = thrift_port,
-    #                             pcap_dump = True,
-    #                             cls = P4Router)
-    #     #switches[name].setIP(ip = '192.1.1.%d' % name_to_nbr[name], intf='s'+str(name_to_nbr[name])+'-eth1')
-    # print(switches[name].intfList())
-    # #establish links
-    # info( '*** Creating links\n' )
-    # for link in links:
-    #     net.addLink(switches[link[0]], switches[link[1]])
-    #
-    # sleep(1)
-    #
-    # print "Ready !"
-    #
-    # for name in switch_names:
-    # print "<<<<<<<<<" + name + ">>>>>>>>>>>>"
-    # print "interfaces: " + str(switches[name].intfNames())
-    #
-    # switches['A'].setIP('10.0.4.1', intf='s1-eth1')
-    # switches['B'].setIP('10.0.4.2', intf='s2-eth1')
-    # switches['B'].setIP('10.0.3.1', intf='s2-eth2')
-    # switches['B'].setIP('10.0.5.1', intf='s2-eth3')
-    # switches['C'].setIP('10.0.5.2', intf='s3-eth1')
-    # switches['C'].setIP('10.0.1.1', intf='s3-eth2')
-    # switches['C'].setIP('10.0.2.1', intf='s3-eth3')
-    # switches['D'].setIP('10.0.1.2', intf='s4-eth1')
-    # switches['E'].setIP('10.0.3.2', intf='s5-eth1')
-    # switches['F'].setIP('10.0.2.2', intf='s6-eth1')
-    CLI( net )
-    net.stop()
+    net = Mininet(topo = topo, host= P4Router, switch=P4Router)
+    
+    bfrs = { 'A':'s1', 'B':'s2', 'C':'s3', 'D':'s4','E':'s5','F':'s6'}
+    info( '*** Assigning IPs\n' )
+    
 
+    net.get(bfrs['A']).setIP('10.0.4.1', intf='s1-eth0')
+
+    net.get(bfrs['B']).setIP('10.0.4.2', intf='s2-eth0')
+    net.get(bfrs['B']).setIP('10.0.3.1', intf='s2-eth1')
+    net.get(bfrs['B']).setIP('10.0.5.1', intf='s2-eth2')
+   
+    net.get(bfrs['C']).setIP('10.0.5.2', intf='s3-eth0')
+    net.get(bfrs['C']).setIP('10.0.1.1', intf='s3-eth1')
+    net.get(bfrs['C']).setIP('10.0.2.1', intf='s3-eth2')
+    net.get(bfrs['D']).setIP('10.0.1.2', intf='s4-eth0')
+    net.get(bfrs['E']).setIP('10.0.3.2', intf='s5-eth0')
+    net.get(bfrs['F']).setIP('10.0.2.2', intf='s6-eth0')
+    
+
+    net.start()
+       
+    for k in bfrs.keys():
+	net.get(bfrs[k]).start(controllers=None)
+
+    CLI(net)
+    net.stop()
 
 class P4Router(Node):
     """P4 virtual Router"""
     listenerPort = 11111
     thriftPort = 22222
-
+    dpidLen = 16
+    
     def __init__( self, name, sw_path = "dc_full",
 		  dpid=None,
+		  opts='',
                   thrift_port = None,
                   pcap_dump = False,
                   verbose = False, **kwargs ):
         Node.__init__( self, name, **kwargs )
         self.dpid = self.defaultDpid(dpid)
+	self.opts = opts
 	self.sw_path = sw_path
         self.verbose = verbose
         logfile = '/tmp/p4ns.%s.log' % self.name
@@ -201,7 +190,6 @@ class P4Router(Node):
         self.cmd( ' '.join(args) + ' >' + logfile + ' 2>&1 </dev/null &' )
         #self.cmd( ' '.join(args) + ' > /dev/null 2>&1 < /dev/null &' )
 
-        print "Router has been started"
 
     def stop( self ):
         "Terminate IVS switch."
