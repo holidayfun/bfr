@@ -18,9 +18,11 @@ from mininet.net import Mininet
 from mininet.topo import Topo
 from mininet.log import setLogLevel, info
 from mininet.cli import CLI
-from mininet.node import Node
+from mininet.node import Node, Switch, Host
 
 from p4_mininet import P4Switch, P4Host
+
+
 
 import argparse
 from time import sleep
@@ -62,13 +64,14 @@ class BFR_Topo(Topo):
                                     sw_path = sw_path,
                                     thrift_port = thrift_port + name_to_dpid[name],
                                     pcap_dump = True)
+
 	    #self.addSwitch(bfrs[name])
         info( '*** Creating links\n' )
         links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
         for link in links:
             self.addLink(bfrs[link[0]], bfrs[link[1]])
 	print(self.nodes())
-	info( '*** Assigning IPs\n' )
+	#info( '*** Assigning IPs\n' )
         #bfrs['A'].setIP('10.0.4.1', intf='s1-eth1')
         #bfrs['B'].setIP('10.0.4.2', intf='s2-eth1')
         #bfrs['B'].setIP('10.0.3.1', intf='s2-eth2')
@@ -83,7 +86,8 @@ class BFR_Topo(Topo):
     def addSwitch(self, name, **opts):
 	if not opts and self.sopts:
 	    opts=self.opts
-	return self.addNode(name, isSwitch=False, **opts)
+	print("adding switch %s" % name)
+	return self.addNode(name, isSwitch=True, **opts)
 
 def main():
     num_hosts = args.num_hosts
@@ -94,37 +98,53 @@ def main():
     net = Mininet(topo = topo, host= P4Router, switch=P4Router)
     
     bfrs = { 'A':'s1', 'B':'s2', 'C':'s3', 'D':'s4','E':'s5','F':'s6'}
-    info( '*** Assigning IPs\n' )
+    info( '*** Assigning IPs\n' )   
     
+    if False:
+    	net.get(bfrs['A']).setIP('10.0.4.1', intf='s1-eth0')
 
-    net.get(bfrs['A']).setIP('10.0.4.1', intf='s1-eth0')
-
-    net.get(bfrs['B']).setIP('10.0.4.2', intf='s2-eth0')
-    net.get(bfrs['B']).setIP('10.0.3.1', intf='s2-eth1')
-    net.get(bfrs['B']).setIP('10.0.5.1', intf='s2-eth2')
+    	net.get(bfrs['B']).setIP('10.0.4.2', intf='s2-eth0')
+    	net.get(bfrs['B']).setIP('10.0.3.1', intf='s2-eth1')
+    	net.get(bfrs['B']).setIP('10.0.5.1', intf='s2-eth2')
    
-    net.get(bfrs['C']).setIP('10.0.5.2', intf='s3-eth0')
-    net.get(bfrs['C']).setIP('10.0.1.1', intf='s3-eth1')
-    net.get(bfrs['C']).setIP('10.0.2.1', intf='s3-eth2')
-    net.get(bfrs['D']).setIP('10.0.1.2', intf='s4-eth0')
-    net.get(bfrs['E']).setIP('10.0.3.2', intf='s5-eth0')
-    net.get(bfrs['F']).setIP('10.0.2.2', intf='s6-eth0')
-    
+	net.get(bfrs['C']).setIP('10.0.5.2', intf='s3-eth0')
+	net.get(bfrs['C']).setIP('10.0.1.1', intf='s3-eth1')
+    	net.get(bfrs['C']).setIP('10.0.2.1', intf='s3-eth2')
+    	net.get(bfrs['D']).setIP('10.0.1.2', intf='s4-eth0')
+    	net.get(bfrs['E']).setIP('10.0.3.2', intf='s5-eth0')
+    	net.get(bfrs['F']).setIP('10.0.2.2', intf='s6-eth0')
+    else:
+    	net.get(bfrs['A']).setIP('10.0.4.1', intf='s1-eth1')
+
+    	net.get(bfrs['B']).setIP('10.0.4.2', intf='s2-eth1')
+    	net.get(bfrs['B']).setIP('10.0.3.1', intf='s2-eth2')
+    	net.get(bfrs['B']).setIP('10.0.5.1', intf='s2-eth3')
+   
+	net.get(bfrs['C']).setIP('10.0.5.2', intf='s3-eth1')
+	net.get(bfrs['C']).setIP('10.0.1.1', intf='s3-eth2')
+    	net.get(bfrs['C']).setIP('10.0.2.1', intf='s3-eth3')
+    	net.get(bfrs['D']).setIP('10.0.1.2', intf='s4-eth1')
+    	net.get(bfrs['E']).setIP('10.0.3.2', intf='s5-eth1')
+    	net.get(bfrs['F']).setIP('10.0.2.2', intf='s6-eth1')
+ 
 
     net.start()
-       
+    
+    #starting the routers    
     for k in bfrs.keys():
-	net.get(bfrs[k]).start(controllers=None)
+    	net.get(bfrs[k]).start(controllers=None)
 
     CLI(net)
     net.stop()
 
-class P4Router(Node):
+class P4Router(P4Switch):
     """P4 virtual Router"""
     listenerPort = 11111
     thriftPort = 22222
     dpidLen = 16
-    
+    #we pretend to not be a switch, so mininet assumes we are a host
+    def defaultIntf(self):
+	pass 
     def __init__( self, name, sw_path = "dc_full",
 		  dpid=None,
 		  opts='',
@@ -185,9 +205,9 @@ class P4Router(Node):
 
         logfile = '/tmp/p4ns.%s.log' % self.name
 
-        print ' '.join(args)
+        #print ' '.join(args)
 
-        self.cmd( ' '.join(args) + ' >' + logfile + ' 2>&1 </dev/null &' )
+        self.cmd( ' '.join(args) + ' >' + logfile + ' 2>&1 </dev/null &' , verbose=True)
         #self.cmd( ' '.join(args) + ' > /dev/null 2>&1 < /dev/null &' )
 
 
