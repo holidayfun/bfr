@@ -95,12 +95,15 @@ def main():
     thrift_port = args.thrift_port
 
     topo = BFR_Topo(sw_path, thrift_port)
-    net = Mininet(topo = topo, host= P4Router, switch=P4Router)
+    net = Mininet(topo = topo, host= TestP4Switch, switch=TestP4Switch, controller=None)
     
     bfrs = { 'A':'s1', 'B':'s2', 'C':'s3', 'D':'s4','E':'s5','F':'s6'}
     info( '*** Assigning IPs\n' )   
     
-    if False:
+    net.start()
+    
+    isSwitch = True
+    if not isSwitch:
     	net.get(bfrs['A']).setIP('10.0.4.1', intf='s1-eth0')
 
     	net.get(bfrs['B']).setIP('10.0.4.2', intf='s2-eth0')
@@ -128,7 +131,7 @@ def main():
     	net.get(bfrs['F']).setIP('10.0.2.2', intf='s6-eth1')
  
 
-    net.start()
+    #net.start()
     
     #starting the routers    
     for k in bfrs.keys():
@@ -137,14 +140,19 @@ def main():
     CLI(net)
     net.stop()
 
-class P4Router(P4Switch):
+class TestP4Switch(P4Switch):
+    def defaultIntf(self):
+	return Node.defaultIntf(self)
+
+class P4Router(Node):
     """P4 virtual Router"""
     listenerPort = 11111
     thriftPort = 22222
     dpidLen = 16
     #we pretend to not be a switch, so mininet assumes we are a host
     def defaultIntf(self):
-	pass 
+	return Node.defaultIntf(self)
+    
     def __init__( self, name, sw_path = "dc_full",
 		  dpid=None,
 		  opts='',
