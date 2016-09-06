@@ -84,19 +84,17 @@ def main():
     bfrs = { 'A':'s1', 'B':'s2', 'C':'s3', 'D':'s4','E':'s5','F':'s6'}
     info( '*** Assigning IPs\n' )   
     
-    net.start()
+    #net.start()
     s1, s2, s3, s4, s5, s6 = [net.get(bfrs[name]) for name in sorted(list(bfrs.keys()))]
     
-    c0 = net.addController('c0', controller=InbandController, ip='123.123.123.1')
+    c0 = net.addController('c0', controller=InbandController)
 
     net.configureControlNetwork()
-    
+    #net.start()   
+ 
     #Set the ips for the interfaces
     s1.setIP('10.0.4.1', intf='s1-eth1')
-
-    s1.setHostRoute('192.168.122.42', 's1-eth2')   
-
-
+    
     s2.setIP('10.0.4.2', intf='s2-eth1')
     s2.setIP('10.0.3.1', intf='s2-eth2')
     s2.setIP('10.0.5.1', intf='s2-eth3')
@@ -108,23 +106,19 @@ def main():
     s5.setIP('10.0.3.2', intf='s5-eth1')
     s6.setIP('10.0.2.2', intf='s6-eth1')
 
-
-	#control interfaces
-    print('')
-    print('')
-    print('')
-    info('----Adding links to controller----')
-    #net.addLink(s1,c0)
-	
-    #s1.setHostRouter('123.123.123.1', 	
-
- 
-
-    #net.start()
+    #create routes so that the switches can connect to the DB
+    s1.setHostRoute('192.168.122.42', 's1-eth2')
+    s2.setHostRoute('192.168.122.42', 's2-eth4')
+    s3.setHostRoute('192.168.122.42', 's3-eth4')
+    s4.setHostRoute('192.168.122.42', 's4-eth2')
+    s5.setHostRoute('192.168.122.42', 's5-eth2')
+    s6.setHostRoute('192.168.122.42', 's6-eth2')
     
+    net.start()
+
     #starting the routers    
-    for k in bfrs.keys():
-    	net.get(bfrs[k]).start(controllers=None)
+    #for k in bfrs.keys():
+    #	net.get(bfrs[k]).start(controllers=None)
 
     CLI(net)
     net.stop()
@@ -133,16 +127,15 @@ def main():
 class OwnMininet(Mininet):
     def configureControlNetwork(self):
 	info("configuring control network.")
-	n = 40
+	n = 100
 	for controller in self.controllers:
 	    info('starting with ' + str(controller))
 	    for switch in self.switches:
 		sw_to_ctrl = self.addLink(switch,controller)
-	    	
-		controller.setIP('%s.0.0.1'%n, intf=sw_to_ctrl.intf2)
-		switch.setIP('%s.0.0.2'%n, intf=sw_to_ctrl.intf1)
-		controller.setHostRoute('%s.0.0.2'%n, sw_to_ctrl.intf2)	
-		n = n + 1
+		controller.setIP('40.0.0.%s'%(n+1), intf=sw_to_ctrl.intf2)
+		switch.setIP('40.0.0.%s'%(n+2), intf=sw_to_ctrl.intf1)
+		controller.setHostRoute('40.0.0.%s'%(n+2), sw_to_ctrl.intf2)	
+		n = n + 2
 class InbandController(RemoteController):
     def checkListening(self):
 	"Overridden to do nothing."
@@ -206,7 +199,7 @@ class P4Router(Node):
         for intf in self.intfs.values():
             if not intf.IP():
                 args.extend( ['-i', intf.name] )
-        args.extend( ['--listener', '127.0.0.1:%d' % self.listenerPort] )
+        args.extend( ['--listener', '192.168.122.42:%d' % self.listenerPort] )
         self.listenerPort += 1
         # FIXME
         if self.thrift_port:
@@ -214,7 +207,7 @@ class P4Router(Node):
         else:
             thrift_port =  self.thriftPort
             self.thriftPort += 1
-        args.extend( ['--pd-server', '127.0.0.1:%d' % thrift_port] )
+        args.extend(['--pd-server', '40.0.0.{0}:{1}'.format(100 + 2 * int(self.dpid),thrift_port)] )
 
  	args.extend( ['--p4nsdb', '192.168.122.42:6379'] )    
 
