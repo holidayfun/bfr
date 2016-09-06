@@ -18,7 +18,7 @@ from mininet.net import Mininet
 from mininet.topo import Topo
 from mininet.log import setLogLevel, info
 from mininet.cli import CLI
-from mininet.node import Node, Switch, Host
+from mininet.node import Node, Switch, Host, RemoteController
 
 from p4_mininet import P4Switch, P4Host
 
@@ -50,6 +50,7 @@ class BFR_Topo(Topo):
     """
 
     def __init__(self, sw_path, thrift_port, **opts):
+
         # Initialize topology and default options
         # Each BFR listens on a different Thrift port
         # A-F listen on Port thrift_port + {1-6}
@@ -63,31 +64,14 @@ class BFR_Topo(Topo):
             bfrs[name] = self.addSwitch("s%d" % name_to_dpid[name],
                                     sw_path = sw_path,
                                     thrift_port = thrift_port + name_to_dpid[name],
-                                    pcap_dump = True)
+                                    pcap_dump = True,
+				    inNamespace = True)
 
-	    #self.addSwitch(bfrs[name])
         info( '*** Creating links\n' )
         links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
         for link in links:
             self.addLink(bfrs[link[0]], bfrs[link[1]])
 	print(self.nodes())
-	#info( '*** Assigning IPs\n' )
-        #bfrs['A'].setIP('10.0.4.1', intf='s1-eth1')
-        #bfrs['B'].setIP('10.0.4.2', intf='s2-eth1')
-        #bfrs['B'].setIP('10.0.3.1', intf='s2-eth2')
-        #bfrs['B'].setIP('10.0.5.1', intf='s2-eth3')
-        #bfrs['C'].setIP('10.0.5.2', intf='s3-eth1')
-        #bfrs['C'].setIP('10.0.1.1', intf='s3-eth2')
-        #bfrs['C'].setIP('10.0.2.1', intf='s3-eth3')
-        #bfrs['D'].setIP('10.0.1.2', intf='s4-eth1')
-        #bfrs['E'].setIP('10.0.3.2', intf='s5-eth1')
-        #bfrs['F'].setIP('10.0.2.2', intf='s6-eth1')
-	
-    def addSwitch(self, name, **opts):
-	if not opts and self.sopts:
-	    opts=self.opts
-	print("adding switch %s" % name)
-	return self.addNode(name, isSwitch=True, **opts)
 
 def main():
     num_hosts = args.num_hosts
@@ -95,40 +79,45 @@ def main():
     thrift_port = args.thrift_port
 
     topo = BFR_Topo(sw_path, thrift_port)
-    net = Mininet(topo = topo, host= TestP4Switch, switch=TestP4Switch, controller=None)
+    net = OwnMininet(topo = topo, host= P4Router, switch=P4Router, controller=None)
     
     bfrs = { 'A':'s1', 'B':'s2', 'C':'s3', 'D':'s4','E':'s5','F':'s6'}
     info( '*** Assigning IPs\n' )   
     
     net.start()
+    s1, s2, s3, s4, s5, s6 = [net.get(bfrs[name]) for name in sorted(list(bfrs.keys()))]
     
-    isSwitch = True
-    if not isSwitch:
-    	net.get(bfrs['A']).setIP('10.0.4.1', intf='s1-eth0')
+    c0 = net.addController('c0', controller=InbandController, ip='123.123.123.1')
 
-    	net.get(bfrs['B']).setIP('10.0.4.2', intf='s2-eth0')
-    	net.get(bfrs['B']).setIP('10.0.3.1', intf='s2-eth1')
-    	net.get(bfrs['B']).setIP('10.0.5.1', intf='s2-eth2')
-   
-	net.get(bfrs['C']).setIP('10.0.5.2', intf='s3-eth0')
-	net.get(bfrs['C']).setIP('10.0.1.1', intf='s3-eth1')
-    	net.get(bfrs['C']).setIP('10.0.2.1', intf='s3-eth2')
-    	net.get(bfrs['D']).setIP('10.0.1.2', intf='s4-eth0')
-    	net.get(bfrs['E']).setIP('10.0.3.2', intf='s5-eth0')
-    	net.get(bfrs['F']).setIP('10.0.2.2', intf='s6-eth0')
-    else:
-    	net.get(bfrs['A']).setIP('10.0.4.1', intf='s1-eth1')
+    net.configureControlNetwork()
+    
+    #Set the ips for the interfaces
+    s1.setIP('10.0.4.1', intf='s1-eth1')
 
-    	net.get(bfrs['B']).setIP('10.0.4.2', intf='s2-eth1')
-    	net.get(bfrs['B']).setIP('10.0.3.1', intf='s2-eth2')
-    	net.get(bfrs['B']).setIP('10.0.5.1', intf='s2-eth3')
+    s1.setHostRoute('192.168.122.42', 's1-eth2')   
+
+
+    s2.setIP('10.0.4.2', intf='s2-eth1')
+    s2.setIP('10.0.3.1', intf='s2-eth2')
+    s2.setIP('10.0.5.1', intf='s2-eth3')
    
-	net.get(bfrs['C']).setIP('10.0.5.2', intf='s3-eth1')
-	net.get(bfrs['C']).setIP('10.0.1.1', intf='s3-eth2')
-    	net.get(bfrs['C']).setIP('10.0.2.1', intf='s3-eth3')
-    	net.get(bfrs['D']).setIP('10.0.1.2', intf='s4-eth1')
-    	net.get(bfrs['E']).setIP('10.0.3.2', intf='s5-eth1')
-    	net.get(bfrs['F']).setIP('10.0.2.2', intf='s6-eth1')
+    s3.setIP('10.0.5.2', intf='s3-eth1')
+    s3.setIP('10.0.1.1', intf='s3-eth2')
+    s3.setIP('10.0.2.1', intf='s3-eth3')
+    s4.setIP('10.0.1.2', intf='s4-eth1')
+    s5.setIP('10.0.3.2', intf='s5-eth1')
+    s6.setIP('10.0.2.2', intf='s6-eth1')
+
+
+	#control interfaces
+    print('')
+    print('')
+    print('')
+    info('----Adding links to controller----')
+    #net.addLink(s1,c0)
+	
+    #s1.setHostRouter('123.123.123.1', 	
+
  
 
     #net.start()
@@ -139,6 +128,25 @@ def main():
 
     CLI(net)
     net.stop()
+
+
+class OwnMininet(Mininet):
+    def configureControlNetwork(self):
+	info("configuring control network.")
+	n = 40
+	for controller in self.controllers:
+	    info('starting with ' + str(controller))
+	    for switch in self.switches:
+		sw_to_ctrl = self.addLink(switch,controller)
+	    	
+		controller.setIP('%s.0.0.1'%n, intf=sw_to_ctrl.intf2)
+		switch.setIP('%s.0.0.2'%n, intf=sw_to_ctrl.intf1)
+		controller.setHostRoute('%s.0.0.2'%n, sw_to_ctrl.intf2)	
+		n = n + 1
+class InbandController(RemoteController):
+    def checkListening(self):
+	"Overridden to do nothing."
+	return
 
 class TestP4Switch(P4Switch):
     def defaultIntf(self):
@@ -207,6 +215,9 @@ class P4Router(Node):
             thrift_port =  self.thriftPort
             self.thriftPort += 1
         args.extend( ['--pd-server', '127.0.0.1:%d' % thrift_port] )
+
+ 	args.extend( ['--p4nsdb', '192.168.122.42:6379'] )    
+
         if not self.pcap_dump:
             args.append( '--no-cli' )
         args.append( self.opts )
@@ -214,6 +225,10 @@ class P4Router(Node):
         logfile = '/tmp/p4ns.%s.log' % self.name
 
         #print ' '.join(args)
+	
+	#start redis-server
+	#self.cmd('redis-server > /tmp/redis-log-%s' % self.name + ' &')
+
 
         self.cmd( ' '.join(args) + ' >' + logfile + ' 2>&1 </dev/null &' , verbose=True)
         #self.cmd( ' '.join(args) + ' > /dev/null 2>&1 < /dev/null &' )
