@@ -71,7 +71,7 @@ class BFR_Topo(Topo):
         links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
         for link in links:
             self.addLink(bfrs[link[0]], bfrs[link[1]])
-	print(self.nodes())
+	
 
 def main():
     num_hosts = args.num_hosts
@@ -92,19 +92,32 @@ def main():
     net.configureControlNetwork()
     #net.start()   
  
-    #Set the ips for the interfaces
+    #Set the IPs and MACs for the interfaces
     s1.setIP('10.0.4.1', intf='s1-eth1')
-    
+    s1.setMAC('00:00:00:00:01:01', intf='s1-eth1')
+
     s2.setIP('10.0.4.2', intf='s2-eth1')
     s2.setIP('10.0.3.1', intf='s2-eth2')
     s2.setIP('10.0.5.1', intf='s2-eth3')
+    s2.setMAC('00:00:00:00:02:01', intf='s2-eth1')
+    s2.setMAC('00:00:00:00:02:02', intf='s2-eth2')
+    s2.setMAC('00:00:00:00:02:03', intf='s2-eth3')
    
     s3.setIP('10.0.5.2', intf='s3-eth1')
     s3.setIP('10.0.1.1', intf='s3-eth2')
     s3.setIP('10.0.2.1', intf='s3-eth3')
+    s3.setMAC('00:00:00:00:03:01', intf='s3-eth1')
+    s3.setMAC('00:00:00:00:03:02', intf='s3-eth2')
+    s3.setMAC('00:00:00:00:03:03', intf='s3-eth3')
+    
     s4.setIP('10.0.1.2', intf='s4-eth1')
+    s4.setMAC('00:00:00:00:04:01', intf='s4-eth1')
+    
     s5.setIP('10.0.3.2', intf='s5-eth1')
+    s5.setMAC('00:00:00:00:05:01', intf='s5-eth1')
+    
     s6.setIP('10.0.2.2', intf='s6-eth1')
+    s6.setMAC('00:00:00:00:06:01', intf='s6-eth1')
 
     #create routes so that the switches can connect to the DB
     s1.setHostRoute('192.168.122.42', 's1-eth2')
@@ -127,15 +140,23 @@ def main():
 class OwnMininet(Mininet):
     def configureControlNetwork(self):
 	info("configuring control network.")
-	n = 100
+	n = 0
+	mac_counter = 1
 	for controller in self.controllers:
 	    info('starting with ' + str(controller))
 	    for switch in self.switches:
 		sw_to_ctrl = self.addLink(switch,controller)
-		controller.setIP('40.0.0.%s'%(n+1), intf=sw_to_ctrl.intf2)
-		switch.setIP('40.0.0.%s'%(n+2), intf=sw_to_ctrl.intf1)
-		controller.setHostRoute('40.0.0.%s'%(n+2), sw_to_ctrl.intf2)	
+		
+		addr = 100 + n
+		
+		controller.setIP('40.0.0.%s'%(addr+1), intf=sw_to_ctrl.intf2)
+		switch.setIP('40.0.0.%s'%(addr+2), intf=sw_to_ctrl.intf1)
+		
+    		controller.setMAC('00:00:00:0c:00:%02d'%mac_counter, intf=sw_to_ctrl.intf2)
+		switch.setMAC('00:00:00:0c:%02d:01'%(mac_counter), intf=sw_to_ctrl.intf1)
+		controller.setHostRoute('40.0.0.%s'%(addr+2), sw_to_ctrl.intf2)	
 		n = n + 2
+		mac_counter = mac_counter + 1
 class InbandController(RemoteController):
     def checkListening(self):
 	"Overridden to do nothing."
