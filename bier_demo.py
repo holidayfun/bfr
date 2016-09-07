@@ -55,7 +55,7 @@ class BFR_Topo(Topo):
         for name in bfr_names:
             bfrs[name] = self.addSwitch("s%d" % name_to_dpid[name],
                                     sw_path = sw_path,
-                                    thrift_port = thrift_port + name_to_dpid[name],
+                                    thrift_port = thrift_port,
                                     pcap_dump = True,
 				    inNamespace = True)
 
@@ -219,7 +219,7 @@ class P4Router(Node):
         else:
             thrift_port = self.thriftPort
         args.extend(['--pd-server', '40.0.0.{0}:{1}'.format(100 + 2 * int(self.dpid),thrift_port)] )
- 	    args.extend( ['--p4nsdb', '192.168.122.42:6379'] )
+	args.extend( ['--p4nsdb', '192.168.122.42:6379'] )
 
         if not self.pcap_dump:
             args.append( '--no-cli' )
