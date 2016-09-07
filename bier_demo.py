@@ -24,6 +24,10 @@ import argparse
 from time import sleep
 import re
 
+import SwitchData
+import json
+
+
 parser = argparse.ArgumentParser(description='Mininet demo')
 parser.add_argument('--behavioral-exe', help='Path to behavioral executable',
                     type=str, action="store", required=True)
@@ -32,6 +36,8 @@ parser.add_argument('--thrift-port', help='Thrift server port for table updates'
 parser.add_argument('--num-hosts', help='Number of hosts to connect to switch',
                     type=int, action="store", default=2)
 args = parser.parse_args()
+
+network = json.load(open('network.json', 'r'))
 
 class BFR_Topo(Topo):
     """
@@ -48,24 +54,17 @@ class BFR_Topo(Topo):
         # Each BFR listens on a different Thrift port
         # A-F listen on Port thrift_port + {1-6}
         Topo.__init__(self, **opts)
-        bfr_names = ['A', 'B', 'C', 'D', 'E', 'F']
-        name_to_dpid = {'A' : 1, 'B' : 2, 'C' : 3, 'D' : 4, 'E' : 5, 'F' : 6}
-        bfrs = {}
         info( '*** Creating BFRs\n' )
-        for name in bfr_names:
-            bfrs[name] = self.addSwitch("s%d" % name_to_dpid[name],
-                                    sw_path = sw_path,
-                                    thrift_port = thrift_port,
-                                    pcap_dump = True,
-				    inNamespace = True)
+        for name in network.keys():
+            self.addSwitch(name, sw_path = sw_path, thrift_port = thrift_port,
+                            pcap_dump = True, inNamespace = True)
 
         info( '*** Creating links\n' )
-        links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
+        links = [['s1', 's2'], ['s2', 's5'], ['s2', 's3'], ['s3', 's4'], ['s3', 's6']]
         for link in links:
-            self.addLink(bfrs[link[0]], bfrs[link[1]])
+            self.addLink(link[0], link[1])
 
 def main():
-    num_hosts = args.num_hosts
     sw_path = args.behavioral_exe
     thrift_port = args.thrift_port
 
@@ -74,41 +73,44 @@ def main():
 
     bfrs = { 'A':'s1', 'B':'s2', 'C':'s3', 'D':'s4','E':'s5','F':'s6'}
     info( '*** Assigning IPs\n' )
-
-    #net.start()
-    s1, s2, s3, s4, s5, s6 = [net.get(bfrs[name]) for name in sorted(list(bfrs.keys()))]
-
+    s1, s2, s3, s4, s5, s6 = [net.get(name) for name in sorted(list(network.keys()))]
     c0 = net.addController('c0', controller=InbandController)
 
     net.configureControlNetwork()
     #net.start()
 
+    for switch, ports in network.items():
+        for interface, data in ports.items():
+            switch.setMAC(data['mac'], intf = interface)
+            switch.setIP(data['ip'], intf = interface)
+            print("{0} intf {1} mac {2} ip {3}".format(switch, interface, data['mac'], data['ip']))
+
     #Set the IPs and MACs for the interfaces
-    s1.setIP('10.0.4.1', intf='s1-eth1')
-    s1.setMAC('00:00:00:00:01:01', intf='s1-eth1')
-
-    s2.setIP('10.0.4.2', intf='s2-eth1')
-    s2.setIP('10.0.3.1', intf='s2-eth2')
-    s2.setIP('10.0.5.1', intf='s2-eth3')
-    s2.setMAC('00:00:00:00:02:01', intf='s2-eth1')
-    s2.setMAC('00:00:00:00:02:02', intf='s2-eth2')
-    s2.setMAC('00:00:00:00:02:03', intf='s2-eth3')
-
-    s3.setIP('10.0.5.2', intf='s3-eth1')
-    s3.setIP('10.0.1.1', intf='s3-eth2')
-    s3.setIP('10.0.2.1', intf='s3-eth3')
-    s3.setMAC('00:00:00:00:03:01', intf='s3-eth1')
-    s3.setMAC('00:00:00:00:03:02', intf='s3-eth2')
-    s3.setMAC('00:00:00:00:03:03', intf='s3-eth3')
-
-    s4.setIP('10.0.1.2', intf='s4-eth1')
-    s4.setMAC('00:00:00:00:04:01', intf='s4-eth1')
-
-    s5.setIP('10.0.3.2', intf='s5-eth1')
-    s5.setMAC('00:00:00:00:05:01', intf='s5-eth1')
-
-    s6.setIP('10.0.2.2', intf='s6-eth1')
-    s6.setMAC('00:00:00:00:06:01', intf='s6-eth1')
+    # s1.setIP('10.0.4.1', intf='s1-eth1')
+    # s1.setMAC('00:00:00:00:01:01', intf='s1-eth1')
+    #
+    # s2.setIP('10.0.4.2', intf='s2-eth1')
+    # s2.setIP('10.0.3.1', intf='s2-eth2')
+    # s2.setIP('10.0.5.1', intf='s2-eth3')
+    # s2.setMAC('00:00:00:00:02:01', intf='s2-eth1')
+    # s2.setMAC('00:00:00:00:02:02', intf='s2-eth2')
+    # s2.setMAC('00:00:00:00:02:03', intf='s2-eth3')
+    #
+    # s3.setIP('10.0.5.2', intf='s3-eth1')
+    # s3.setIP('10.0.1.1', intf='s3-eth2')
+    # s3.setIP('10.0.2.1', intf='s3-eth3')
+    # s3.setMAC('00:00:00:00:03:01', intf='s3-eth1')
+    # s3.setMAC('00:00:00:00:03:02', intf='s3-eth2')
+    # s3.setMAC('00:00:00:00:03:03', intf='s3-eth3')
+    #
+    # s4.setIP('10.0.1.2', intf='s4-eth1')
+    # s4.setMAC('00:00:00:00:04:01', intf='s4-eth1')
+    #
+    # s5.setIP('10.0.3.2', intf='s5-eth1')
+    # s5.setMAC('00:00:00:00:05:01', intf='s5-eth1')
+    #
+    # s6.setIP('10.0.2.2', intf='s6-eth1')
+    # s6.setMAC('00:00:00:00:06:01', intf='s6-eth1')
 
     #create routes so that the switches can connect to the DB
     s1.setHostRoute('192.168.122.42', 's1-eth2')
