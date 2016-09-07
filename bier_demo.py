@@ -79,10 +79,10 @@ def main():
     net.configureControlNetwork()
     #net.start()
 
-    for switch, ports in network.items():
+    for switch_name, ports in network.items():
         for interface, data in ports.items():
-            switch.setMAC(data['mac'], intf = interface)
-            switch.setIP(data['ip'], intf = interface)
+            net.get(switch_name).setMAC(data['mac'], intf = interface)
+            net.get(switch_name).setIP(data['ip'], intf = interface)
             print("{0} intf {1} mac {2} ip {3}".format(switch, interface, data['mac'], data['ip']))
 
     #Set the IPs and MACs for the interfaces
