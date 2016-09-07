@@ -25,9 +25,9 @@ s6.addPort('s6-eth1', '00:00:00:00:06:01', '10.0.2.2')
 
 
 
-switches = []
+switches = {}
 for s in s1,s2,s3,s4,s5,s6:
-    switches.append(s._to_serializable())
+    switches.update(s._to_serializable())
 d = json.dumps(switches, sort_keys=True, indent=4, separators=(',', ': '))
 sw = json.loads(d)
 print(sw)
