@@ -1,6 +1,6 @@
 import sys
 import os
-#sys.path.insert(0, '/home/hartmann/p4factory/cli')
+sys.path.insert(0, '/home/hartmann/p4factory/cli')
 
 import pd_cli
 #sys_path = 'tests/pd_thrift:../../testutils'
