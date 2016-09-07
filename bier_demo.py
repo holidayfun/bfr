@@ -19,14 +19,9 @@ from mininet.topo import Topo
 from mininet.log import setLogLevel, info
 from mininet.cli import CLI
 from mininet.node import Node, Switch, Host, RemoteController
-
 from p4_mininet import P4Switch, P4Host
-
-
-
 import argparse
 from time import sleep
-
 import re
 
 parser = argparse.ArgumentParser(description='Mininet demo')
@@ -36,7 +31,6 @@ parser.add_argument('--thrift-port', help='Thrift server port for table updates'
                     type=int, action="store", default=22222)
 parser.add_argument('--num-hosts', help='Number of hosts to connect to switch',
                     type=int, action="store", default=2)
-
 args = parser.parse_args()
 
 class BFR_Topo(Topo):
@@ -50,17 +44,15 @@ class BFR_Topo(Topo):
     """
 
     def __init__(self, sw_path, thrift_port, **opts):
-
         # Initialize topology and default options
         # Each BFR listens on a different Thrift port
         # A-F listen on Port thrift_port + {1-6}
         Topo.__init__(self, **opts)
-
         bfr_names = ['A', 'B', 'C', 'D', 'E', 'F']
         name_to_dpid = {'A' : 1, 'B' : 2, 'C' : 3, 'D' : 4, 'E' : 5, 'F' : 6}
         bfrs = {}
         info( '*** Creating BFRs\n' )
-        for name in bfr_names:	    
+        for name in bfr_names:
             bfrs[name] = self.addSwitch("s%d" % name_to_dpid[name],
                                     sw_path = sw_path,
                                     thrift_port = thrift_port + name_to_dpid[name],
@@ -71,7 +63,6 @@ class BFR_Topo(Topo):
         links = [['A', 'B'], ['B', 'E'], ['B', 'C'], ['C', 'D'], ['C', 'F']]
         for link in links:
             self.addLink(bfrs[link[0]], bfrs[link[1]])
-	
 
 def main():
     num_hosts = args.num_hosts
@@ -80,18 +71,18 @@ def main():
 
     topo = BFR_Topo(sw_path, thrift_port)
     net = OwnMininet(topo = topo, host= P4Router, switch=P4Router, controller=None)
-    
+
     bfrs = { 'A':'s1', 'B':'s2', 'C':'s3', 'D':'s4','E':'s5','F':'s6'}
-    info( '*** Assigning IPs\n' )   
-    
+    info( '*** Assigning IPs\n' )
+
     #net.start()
     s1, s2, s3, s4, s5, s6 = [net.get(bfrs[name]) for name in sorted(list(bfrs.keys()))]
-    
+
     c0 = net.addController('c0', controller=InbandController)
 
     net.configureControlNetwork()
-    #net.start()   
- 
+    #net.start()
+
     #Set the IPs and MACs for the interfaces
     s1.setIP('10.0.4.1', intf='s1-eth1')
     s1.setMAC('00:00:00:00:01:01', intf='s1-eth1')
@@ -102,20 +93,20 @@ def main():
     s2.setMAC('00:00:00:00:02:01', intf='s2-eth1')
     s2.setMAC('00:00:00:00:02:02', intf='s2-eth2')
     s2.setMAC('00:00:00:00:02:03', intf='s2-eth3')
-   
+
     s3.setIP('10.0.5.2', intf='s3-eth1')
     s3.setIP('10.0.1.1', intf='s3-eth2')
     s3.setIP('10.0.2.1', intf='s3-eth3')
     s3.setMAC('00:00:00:00:03:01', intf='s3-eth1')
     s3.setMAC('00:00:00:00:03:02', intf='s3-eth2')
     s3.setMAC('00:00:00:00:03:03', intf='s3-eth3')
-    
+
     s4.setIP('10.0.1.2', intf='s4-eth1')
     s4.setMAC('00:00:00:00:04:01', intf='s4-eth1')
-    
+
     s5.setIP('10.0.3.2', intf='s5-eth1')
     s5.setMAC('00:00:00:00:05:01', intf='s5-eth1')
-    
+
     s6.setIP('10.0.2.2', intf='s6-eth1')
     s6.setMAC('00:00:00:00:06:01', intf='s6-eth1')
 
@@ -126,10 +117,10 @@ def main():
     s4.setHostRoute('192.168.122.42', 's4-eth2')
     s5.setHostRoute('192.168.122.42', 's5-eth2')
     s6.setHostRoute('192.168.122.42', 's6-eth2')
-    
+
     net.start()
 
-    #starting the routers    
+    #starting the routers
     #for k in bfrs.keys():
     #	net.get(bfrs[k]).start(controllers=None)
 
@@ -146,15 +137,15 @@ class OwnMininet(Mininet):
 	    info('starting with ' + str(controller))
 	    for switch in self.switches:
 		sw_to_ctrl = self.addLink(switch,controller)
-		
+
 		addr = 100 + n
-		
+
 		controller.setIP('40.0.0.%s'%(addr+1), intf=sw_to_ctrl.intf2)
 		switch.setIP('40.0.0.%s'%(addr+2), intf=sw_to_ctrl.intf1)
-		
+
     		controller.setMAC('00:00:00:0c:00:%02d'%mac_counter, intf=sw_to_ctrl.intf2)
 		switch.setMAC('00:00:00:0c:%02d:01'%(mac_counter), intf=sw_to_ctrl.intf1)
-		controller.setHostRoute('40.0.0.%s'%(addr+2), sw_to_ctrl.intf2)	
+		controller.setHostRoute('40.0.0.%s'%(addr+2), sw_to_ctrl.intf2)
 		n = n + 2
 		mac_counter = mac_counter + 1
 class InbandController(RemoteController):
@@ -174,7 +165,7 @@ class P4Router(Node):
     #we pretend to not be a switch, so mininet assumes we are a host
     def defaultIntf(self):
 	return Node.defaultIntf(self)
-    
+
     def __init__( self, name, sw_path = "dc_full",
 		  dpid=None,
 		  opts='',
@@ -226,27 +217,16 @@ class P4Router(Node):
         if self.thrift_port:
             thrift_port = self.thrift_port
         else:
-            thrift_port =  self.thriftPort
-            self.thriftPort += 1
+            thrift_port = self.thriftPort
         args.extend(['--pd-server', '40.0.0.{0}:{1}'.format(100 + 2 * int(self.dpid),thrift_port)] )
-
- 	args.extend( ['--p4nsdb', '192.168.122.42:6379'] )    
+ 	    args.extend( ['--p4nsdb', '192.168.122.42:6379'] )
 
         if not self.pcap_dump:
             args.append( '--no-cli' )
         args.append( self.opts )
-
         logfile = '/tmp/p4ns.%s.log' % self.name
 
-        #print ' '.join(args)
-	
-	#start redis-server
-	#self.cmd('redis-server > /tmp/redis-log-%s' % self.name + ' &')
-
-
         self.cmd( ' '.join(args) + ' >' + logfile + ' 2>&1 </dev/null &' , verbose=True)
-        #self.cmd( ' '.join(args) + ' > /dev/null 2>&1 < /dev/null &' )
-
 
     def stop( self ):
         "Terminate IVS switch."
@@ -267,10 +247,6 @@ class P4Router(Node):
     def dpctl( self, *args ):
         "Run dpctl command"
         pass
-
-
-
-
 
 if __name__ == '__main__':
     setLogLevel( 'debug' )
