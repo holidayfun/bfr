@@ -83,7 +83,7 @@ def main():
         for interface, data in ports.items():
             net.get(switch_name).setMAC(data['mac'], intf = interface)
             net.get(switch_name).setIP(data['ip'], intf = interface)
-            print("{0} intf {1} mac {2} ip {3}".format(switch, interface, data['mac'], data['ip']))
+            print("{0} intf {1} mac {2} ip {3}".format(switch_name, interface, data['mac'], data['ip']))
 
     #Set the IPs and MACs for the interfaces
     # s1.setIP('10.0.4.1', intf='s1-eth1')
