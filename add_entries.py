@@ -30,12 +30,12 @@ using_default_thrift_client_module = True
 command = 'add_entry ipv4_lpm 10.0.3.2 32 set_nhop 10.0.3.2 2'
 p4_name = 'bfr'
 try:
-    pd_cli = PdCli(p4_name, thrift_client_module, thrift_server, port)
+    cli = pd_cli.PdCli(p4_name, thrift_client_module, thrift_server, port)
 except ImportError as ie:
     print >> sys.stderr, "ImportError:", ie
     sys.exit(1)
 
 if command is None:
-    pd_cli.cmdloop()
+    cli.cmdloop()
 else:
-    pd_cli.onecmd(command)
+    cli.onecmd(command)
