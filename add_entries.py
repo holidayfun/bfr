@@ -34,17 +34,26 @@ def handle_cmd(cmd):
         cli.onecmd(cmd)
 
 #adding IP lpm rules
+if create_entry_file:
+    entry_file.write('echo "IPv4 lpm rules"')
+
 entries = [ {'ip': '10.0.3.1', 'prefix_len': 32, 'next_hop': '10.0.3.1', 'action_port': 1},
             {'ip': '10.0.0.0', 'prefix_len': 16, 'next_hop': '10.0.3.1', 'action_port': 1}]
 for entry in entries:
     handle_cmd("add_entry ipv4_lpm {entry[ip]} {entry[prefix_len]} set_nhop {entry[next_hop]} {entry[action_port]}".format(entry=entry))
 
 #adding Send Frame rules
+if create_entry_file:
+    entry_file.write('echo "Send Frame rules"')
+
 entries = [ {'port': 1, 'rewrite_mac': '00:00:00:00:05:01'}]
 for entry in entries:
     handle_cmd("add_entry send_frame {entry[port]} rewrite_mac {entry[rewrite_mac]}".format(entry=entry))
 
 #adding Forward rules
+if create_entry_file:
+    entry_file.write('echo "Forward rules"')
+
 entries = [ {'ip': '10.0.3.1', 'dmac': '00:00:00:00:02:02'}]
 for entry in entries:
     handle_cmd("add_entry forward {entry[ip]} set_dmac {entry[dmac]}".format(entry=entry))
