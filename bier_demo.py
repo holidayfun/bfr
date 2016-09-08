@@ -60,7 +60,7 @@ class BFR_Topo(Topo):
                             pcap_dump = True, inNamespace = True)
 
         info( '*** Creating links\n' )
-        links = [['s1', 's2'], ['s2', 's5'], ['s2', 's3'], ['s3', 's4'], ['s3', 's6']]
+        links = [['s1', 's2'], ['s2', 's5'], ['s2', 's3'], ['s3', 's6'], ['s3', 's4']]
         for link in links:
             self.addLink(link[0], link[1])
 
