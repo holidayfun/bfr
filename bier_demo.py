@@ -69,7 +69,7 @@ def main():
     thrift_port = args.thrift_port
 
     topo = BFR_Topo(sw_path, thrift_port)
-    net = OwnMininet(topo = topo, host= P4Router, switch=P4Router, controller=None)
+    net = OwnMininet(topo = topo, host= P4Host, switch=P4Router, controller=None)
 
     bfrs = { 'A':'s1', 'B':'s2', 'C':'s3', 'D':'s4','E':'s5','F':'s6'}
     info( '*** Assigning IPs\n' )
@@ -82,8 +82,12 @@ def main():
     for switch_name, ports in network.items():
         for interface, data in ports.items():
             net.get(switch_name).setMAC(data['mac'], intf = interface)
-            net.get(switch_name).setIP(data['ip'], intf = interface)
+            net.get(switch_name).setIP(data['ip'] + "/24", intf = interface)
             print("{0} intf {1} mac {2} ip {3}".format(switch_name, interface, data['mac'], data['ip']))
+    s1.setARP('10.0.4.2', '00:00:00:00:02:01')
+
+    s2.setARP('10.0.3.2', '00:00:00:00:05:01')
+    s5.setARP('10.0.3.1', '00:00:00:00:02:02')
 
     #Set the IPs and MACs for the interfaces
     # s1.setIP('10.0.4.1', intf='s1-eth1')
@@ -159,7 +163,7 @@ class TestP4Switch(P4Switch):
     def defaultIntf(self):
 	return Node.defaultIntf(self)
 
-class P4Router(Node):
+class P4Router(P4Switch):
     """P4 virtual Router"""
     listenerPort = 11111
     thriftPort = 22222
