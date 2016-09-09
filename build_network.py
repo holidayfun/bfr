@@ -65,8 +65,8 @@ class OwnMininet(Mininet):
 		    controller.setIP( '100.0.0.%s' % (100 + 2 * n + 1), intf=sw_to_ctrl.intf2)
 		    switch.setIP(     '100.0.0.%s' % (100 + 2 * n + 2), intf=sw_to_ctrl.intf1)
 
-    		#controller.setMAC('00:00:00:0c:00:%02d'%mac_counter, intf=sw_to_ctrl.intf2)
-            #switch.setMAC('00:00:00:0c:%02d:01'%(mac_counter), intf=sw_to_ctrl.intf1)
+    		controller.setMAC('00:00:00:0c:00:%02d' % (n / 2 + 1), intf=sw_to_ctrl.intf2)
+            switch.setMAC('00:00:00:0c:%02d:01' % (n / 2 + 1), intf=sw_to_ctrl.intf1)
             controller.setHostRoute('100.0.0.%s' % (100 + 2 * n + 2), sw_to_ctrl.intf2)
             n = n + 2
 
