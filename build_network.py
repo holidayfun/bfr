@@ -31,7 +31,7 @@ class NetworkTopo(Topo):
         Topo.__init__(self, **opts)
 
         for switch in network['switches']:
-            self.addSwitch(switch['name'], sw_path, thrift_port, pcap_dump = True, inNamespace = True)
+            self.addSwitch(switch['name'], sw_path=sw_path, thrift_port=thrift_port, pcap_dump = True, inNamespace = True)
             for host in switch['hosts']:
                 self.addHost(host['name'], ip=host['ip'], mac=host['mac'])
                 self.addLink(switch, host)
@@ -45,7 +45,7 @@ class OwnMininet(Mininet):
 	n = 0
 	for controller in self.controllers:
 	    for switch in self.switches:
-            sw_to_ctrl = self.addLink(switch,controller)
+	            sw_to_ctrl = self.addLink(switch,controller)
 		    controller.setIP( '100.0.0.%s' % (100 + 2 * n + 1), intf=sw_to_ctrl.intf2)
 		    switch.setIP(     '100.0.0.%s' % (100 + 2 * n + 2), intf=sw_to_ctrl.intf1)
 
