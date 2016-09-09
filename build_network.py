@@ -89,7 +89,7 @@ class P4Router(P4Switch):
         if not self.pcap_dump:
             args.append( '--no-cli' )
         args.append( self.opts )
-        self.cmd(' '.join(args) + ' >' + selflogfile + ' 2>&1 </dev/null &' , verbose=True)
+        self.cmd(' '.join(args) + ' >' + self.logfile + ' 2>&1 </dev/null &' , verbose=True)
 
 if __name__ == "__main__":
     setLogLevel('debug')
