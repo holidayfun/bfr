@@ -1,0 +1,67 @@
+{
+    "name": "RingNetwork",
+    "switch_links": [
+        {
+            "node1": "s1",
+            "node2": "s2"
+        },
+        {
+            "node1": "s2",
+            "node2": "s3"
+        },
+        {
+            "node1": "s3",
+            "node2": "s1"
+        }
+    ],
+    "switches": [
+        {
+            "hosts": [
+                {
+                    "ip": "10.0.1.2",
+                    "mac": "00:00:00:00:01:02",
+                    "name": "h1",
+                    "number": 1,
+                    "switch_ip": 0,
+                    "switch_mac": 0
+                }
+            ],
+            "ip": "10.0.1.1",
+            "mac": "00:00:00:00:01:1",
+            "name": "s1",
+            "number": 1
+        },
+        {
+            "hosts": [
+                {
+                    "ip": "10.0.2.2",
+                    "mac": "00:00:00:00:02:02",
+                    "name": "h1",
+                    "number": 1,
+                    "switch_ip": 0,
+                    "switch_mac": 0
+                }
+            ],
+            "ip": "10.0.2.1",
+            "mac": "00:00:00:00:02:1",
+            "name": "s2",
+            "number": 2
+        },
+        {
+            "hosts": [
+                {
+                    "ip": "10.0.3.2",
+                    "mac": "00:00:00:00:03:02",
+                    "name": "h1",
+                    "number": 1,
+                    "switch_ip": 0,
+                    "switch_mac": 0
+                }
+            ],
+            "ip": "10.0.3.1",
+            "mac": "00:00:00:00:03:1",
+            "name": "s3",
+            "number": 3
+        }
+    ]
+}
