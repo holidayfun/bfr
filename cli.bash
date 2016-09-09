@@ -6,7 +6,7 @@ typeset -i t
 read -p "Switch, auf den verbunden werden soll: " sw_number
 
 t=100+2*$sw_number
-ip="40.0.0.$t"
+ip="100.0.0.$t"
 port=22222
 
 echo "Verbinde zu $ip:$port"
