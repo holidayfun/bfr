@@ -21,9 +21,9 @@ def main(args):
     topo = NetworkTopo(sw_path, thrift_port)
     net = OwnMininet(topo = topo, host= P4Host, switch=P4Router, controller=None)
 
-
-
-
+    net.start()
+    CLI(net)
+    net.stop()
 
 class NetworkTopo(Topo):
     """generate the network topology"""
@@ -34,7 +34,7 @@ class NetworkTopo(Topo):
             self.addSwitch(switch['name'], sw_path=sw_path, thrift_port=thrift_port, pcap_dump = True, inNamespace = True)
             for host in switch['hosts']:
                 self.addHost(host['name'], ip=host['ip'], mac=host['mac'])
-                self.addLink(switch, host)
+                self.addLink(switch['name'], host['name'])
 
         for link in network['switch_links']:
             self.addLink(link['node1'], link['node2'])
