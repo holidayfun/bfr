@@ -21,9 +21,21 @@ def main(args):
     topo = NetworkTopo(sw_path, thrift_port)
     net = OwnMininet(topo = topo, host= P4Host, switch=P4Router, controller=None)
 
+    c0 = net.addController('c0', controller=InbandController)
+    net.configureControlNetwork()
+
+    s1, s2, s3 = [net.get(switch['name']) for switch in network['switches']]
+
+    print(s1.connectionsTo(c0))
+
     net.start()
     CLI(net)
     net.stop()
+
+class InbandController(RemoteController):
+    def checkListening(self):
+	"Overridden to do nothing."
+	return
 
 class NetworkTopo(Topo):
     """generate the network topology"""
