@@ -63,6 +63,12 @@ class BFR_Topo(Topo):
         links = [['s1', 's2'], ['s2', 's5'], ['s2', 's3'], ['s3', 's6'], ['s3', 's4']]
         for link in links:
             self.addLink(link[0], link[1])
+	h1 = self.addHost('h1', ip = '10.0.10.2/24', mac='00:10:00:00:00:01')
+    	h2 = self.addHost('h2', ip = '10.0.11.2/24', mac='00:11:00:00:00:01')
+    
+    	self.addLink(h1,'s1')
+    	self.addLink(h2,'s5')
+
 
 def main():
     sw_path = args.behavioral_exe
@@ -77,17 +83,16 @@ def main():
     c0 = net.addController('c0', controller=InbandController)
 
     net.configureControlNetwork()
-    #net.start()
 
     for switch_name, ports in network.items():
         for interface, data in ports.items():
             net.get(switch_name).setMAC(data['mac'], intf = interface)
             net.get(switch_name).setIP(data['ip'] + "/24", intf = interface)
             print("{0} intf {1} mac {2} ip {3}".format(switch_name, interface, data['mac'], data['ip']))
-    s1.setARP('10.0.4.2', '00:00:00:00:02:01')
+    #s1.setARP('10.0.4.2', '00:00:00:00:02:01')
 
-    s2.setARP('10.0.3.2', '00:00:00:00:05:01')
-    s5.setARP('10.0.3.1', '00:00:00:00:02:02')
+    #s2.setARP('10.0.3.2', '00:00:00:00:05:01')
+    #s5.setARP('10.0.3.1', '00:00:00:00:02:02')
 
     #Set the IPs and MACs for the interfaces
     # s1.setIP('10.0.4.1', intf='s1-eth1')
@@ -117,22 +122,29 @@ def main():
     # s6.setMAC('00:00:00:00:06:01', intf='s6-eth1')
 
     #create routes so that the switches can connect to the DB
-    s1.setHostRoute('192.168.122.42', 's1-eth2')
+    s1.setHostRoute('192.168.122.42', 's1-eth3') #Host inserted
     s2.setHostRoute('192.168.122.42', 's2-eth4')
     s3.setHostRoute('192.168.122.42', 's3-eth4')
     s4.setHostRoute('192.168.122.42', 's4-eth2')
-    s5.setHostRoute('192.168.122.42', 's5-eth2')
+    s5.setHostRoute('192.168.122.42', 's5-eth3') #host inserted
     s6.setHostRoute('192.168.122.42', 's6-eth2')
+    
+    h1 = net.get('h1')
+    h2 = net.get('h2')
+
+    h1.setARP('10.0.10.1', '00:aa:00:00:00:01')
+    h1.setDefaultRoute("dev eth0 via 10.0.10.1")
+    h2.setARP('10.0.11.1', '00:aa:00:00:00:02')
+    h2.setDefaultRoute("dev eth0 via 10.0.11.1")
 
     net.start()
 
     #starting the routers
     #for k in bfrs.keys():
     #	net.get(bfrs[k]).start(controllers=None)
-
     CLI(net)
-    net.stop()
 
+    net.stop()
 
 class OwnMininet(Mininet):
     def configureControlNetwork(self):
