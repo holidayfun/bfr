@@ -1,7 +1,7 @@
 import json
 import collections
 num_switches = 3
-hosts_per_switch = 1
+hosts_per_switch = 2
 
 network = { 'name': 'RingNetwork',
             'switches': []}
@@ -15,11 +15,13 @@ for i in range(1,num_switches + 1):
             'hosts' : []
             }
 
-    for j in range(1, hosts_per_switch + 1):
-        h = {   'name':'h{0}'.format(j),
+    for j in range(1, num_switches * hosts_per_switch + 1, num_switches):
+        host_num = j + i - 1
+        print(host_num)
+        h = {   'name':'h{0}'.format(host_num),
                 'number': j,
-                'ip': '10.0.{0}.{1}'.format(i, j + 1),
-                'mac' : '00:00:00:00:{0:02d}:{1:02d}'.format(i,j + 1),
+                'ip': '10.0.{0}.{1}'.format(i, host_num + 1),
+                'mac' : '00:00:00:00:{0:02d}:{1:02d}'.format(i, host_num + 1),
                 'switch_ip': 0,
                 'switch_mac' : 0
                 }
