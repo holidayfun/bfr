@@ -26,7 +26,11 @@ def main(args):
 
     s1, s2, s3 = [net.get(switch['name']) for switch in network['switches']]
 
-    print(s1.connectionsTo(c0))
+    #adding host routes
+    for s in s1,s2,s3:
+        s.setHostRoute('192.168.122.42', s.connectionsTo(c0)[0][0])
+
+
 
     net.start()
     CLI(net)
