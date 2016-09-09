@@ -63,7 +63,7 @@ class OwnMininet(Mininet):
 
     		#controller.setMAC('00:00:00:0c:00:%02d'%mac_counter, intf=sw_to_ctrl.intf2)
             #switch.setMAC('00:00:00:0c:%02d:01'%(mac_counter), intf=sw_to_ctrl.intf1)
-            controller.setHostRoute('40.0.0.%s'%(addr+2), sw_to_ctrl.intf2)
+            controller.setHostRoute('100.0.0.%s' % (100 + 2 * n + 2), sw_to_ctrl.intf2)
             n = n + 2
 
 class P4Router(P4Switch):
