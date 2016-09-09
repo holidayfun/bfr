@@ -60,7 +60,20 @@ table send_frame {
     size: 256;
 }
 
+
+table bier_packet {
+    reads {
+	ipv4.dstAddr : lpm;
+    }
+    actions {
+    	_drop;
+    }
+    size: 256;
+}
+
+
 control ingress {
+    apply(bier_packet);
     apply(ipv4_lpm);
     apply(forward);
 }
