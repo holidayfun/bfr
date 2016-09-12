@@ -73,7 +73,6 @@ table bier_packet {
 
 
 control ingress {
-    apply(bier_packet);
     apply(ipv4_lpm);
     apply(forward);
 }

@@ -4,7 +4,7 @@ header_type bier_t {
     Ver : 4;
     Len : 4;
     Entropy : 20;
-    BitString : 64;
+    BitString : 16;
     OAM : 2;
     Reserved : 10;
     Proto : 4;
