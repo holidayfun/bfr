@@ -49,7 +49,7 @@ def main(args):
         net_sw1 = net.get(ld_sw1['name'])
         net_sw2 = net.get(ld_sw2['name'])
 
-        net_link = net_sw1.connectionsTo(net_sw2)
+        net_link = net_sw1.connectionsTo(net_sw2)[0]
 
         net_sw1.setIP(ld_sw1['ip'], intf=net_link[0])
         net_sw1.setMAC(ld_sw1['mac'], intf=net_link[0])
