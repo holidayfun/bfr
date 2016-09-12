@@ -31,11 +31,15 @@ def main(args):
         s.setHostRoute('192.168.122.42', s.connectionsTo(c0)[0][0])
 
     for switch in network['switches']:
+        net_switch = net.get(switch['name'])
         for host in switch['hosts']:
             net_host = net.get(host['name'])
             net_host.setARP(host['switch_addr'], host['switch_mac'])
             net_host.setDefaultRoute("dev eth0 via %s" % host['switch_addr'])
 
+            link_to_switch = net_host.connectionsTo(net_switch)[0]
+            net_switch.setMAC(host['switch_mac'], intf=link_to_switch[1])
+            net_switch.setIP(host['switch_addr'], intf=link_to_switch[1])
     net.start()
     CLI(net)
     net.stop()
@@ -55,6 +59,7 @@ class NetworkTopo(Topo):
             for host in switch['hosts']:
                 self.addHost(host['name'], ip=host['ip'], mac=host['mac'])
                 self.addLink(switch['name'], host['name'])
+
 
         for link in network['switch_links']:
             self.addLink(link['node1'], link['node2'])
