@@ -46,12 +46,16 @@ def main(args):
         ld_sw1 = link['node1']
         ld_sw2 = link['node2']
 
-        sw1 = net.get(ld_sw1['name'])
-        sw2 = net.get(ld_sw2['name'])
+        net_sw1 = net.get(ld_sw1['name'])
+        net_sw2 = net.get(ld_sw2['name'])
 
-        l = sw1.connectionsTo(sw2)
-        print("#######)
-        print(l)
+        net_link = net_sw1.connectionsTo(net_sw2)
+
+        net_sw1.setIP(ld_sw1['ip'], intf=net_link[0])
+        net_sw1.setMAC(ld_sw1['mac'], intf=net_link[0])
+
+        net_sw2.setIP(ld_sw2['ip'], intf=net_link[1])
+        net_sw2.setMAC(ld_sw2['mac'], intf=net_link[1])
 
 
     CLI(net)
