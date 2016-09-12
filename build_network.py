@@ -19,7 +19,7 @@ def main(args):
     sw_path = args.behavioral_exe
     thrift_port = args.thrift_port
     topo = NetworkTopo(sw_path, thrift_port)
-    
+
 
     net = OwnMininet(topo = topo, host= P4Host, switch=P4Router, controller=None)
     #adding host routes to controller to be able to connect to redis DB
@@ -30,7 +30,7 @@ def main(args):
         s.setHostRoute('192.168.122.42', s.connectionsTo(c0)[0][0])
 
     net.start()
-
+    
     for switch in network['switches']:
         net_switch = net.get(switch['name'])
         for host in switch['hosts']:
@@ -63,7 +63,7 @@ class NetworkTopo(Topo):
 
 
         for link in network['switch_links']:
-            self.addLink(link['node1'], link['node2'])
+            self.addLink(link['node1']['name'], link['node2']['name'])
 
 class OwnMininet(Mininet):
     def configureControlNetwork(self):
