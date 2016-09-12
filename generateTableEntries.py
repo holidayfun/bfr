@@ -8,18 +8,14 @@ file_templ = 'table_entries/entries_{0}.bash'
 
 def main():
     network = json.load(open('RingNetwork.json', 'r'))
-
+    #remove old files
     for switch in network['switches']:
         silent_rm(file_templ.format(switch['name']))
-
-
     switches = {}
-
 
     for switch in network['switches']:
         switches[switch['name']] = switch
         thrift_server = switch['control_network_ip']
-
         #Einträge für Hosts, die am switch hängen
         action_port = 1 #port nummerierung wi folgt: h1 -> 1, h2 -> 2,...
         for host in switch['hosts']:
@@ -60,13 +56,12 @@ def silent_rm(path):
     except FileNotFoundError:
         pass
 
-
 def append_entry_file(line, switch_name):
     with open(file_templ.format(switch_name), 'a') as fh:
         fh.write(line)
 
 def handle_cmd(cmd, switch_name, thrift_server, thrift_port=22222):
-    append_entry_file('python ../../cli/pd_cli.py -p {0} -i {1} -s $PWD/tests/pd_thrift:$PWD/../../testutils -m "{2}" -c {3}:{4}\n'
+    append_entry_file('python ../../../cli/pd_cli.py -p {0} -i {1} -s $PWD/../tests/pd_thrift:$PWD/../../../testutils -m "{2}" -c {3}:{4}\n'
                         .format(p4_name, thrift_client_module, cmd, thrift_server, thrift_port), switch_name)
 
 def add_all_entries(ip_entry, forward_entry, send_frame_entry, switch_name, thrift_server, thrift_port=22222):
