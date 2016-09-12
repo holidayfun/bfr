@@ -22,8 +22,8 @@ for i in range(1,num_switches + 1):
                 'number': j,
                 'ip': '10.0.{0}.{1}'.format(i, host_num + 1),
                 'mac' : '00:00:00:00:{0:02d}:{1:02d}'.format(i, host_num + 1),
-                'switch_ip': 0,
-                'switch_mac' : 0
+                'switch_addr': '10.0.{0}.{1}'.format(i, 100 + host_num + 1),
+                'switch_mac' : '00:aa:00:00:{0:02d}:{1:02d}'.format(i, host_num + 1)
                 }
         s['hosts'].append(h)
 

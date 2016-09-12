@@ -24,13 +24,16 @@ def main(args):
     c0 = net.addController('c0', controller=InbandController)
     net.configureControlNetwork()
 
-    s1, s2, s3 = [net.get(switch['name']) for switch in network['switches']]
+    net_switches = [net.get(switch['name']) for switch in network['switches']]
 
-    #adding host routes
-    for s in s1,s2,s3:
+    #adding host routes to controller
+    for s in net_switches:
         s.setHostRoute('192.168.122.42', s.connectionsTo(c0)[0][0])
 
-
+    for switch in network['switches']:
+        for host in switch['hosts']:
+            host.setARP(host['switch_addr'], host['switch_mac'])
+            host.setDefaultRoute("dev eth0 via %s" % host['switch_addr'])
 
     net.start()
     CLI(net)
@@ -47,7 +50,7 @@ class NetworkTopo(Topo):
         Topo.__init__(self, **opts)
 
         for switch in network['switches']:
-            self.addSwitch(switch['name'], sw_path=sw_path, thrift_port=thrift_port, pcap_dump = True, inNamespace = True)
+            sw = self.addSwitch(switch['name'], sw_path=sw_path, thrift_port=thrift_port, pcap_dump = True, inNamespace = True)
             for host in switch['hosts']:
                 self.addHost(host['name'], ip=host['ip'], mac=host['mac'])
                 self.addLink(switch['name'], host['name'])
