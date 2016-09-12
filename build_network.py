@@ -30,7 +30,7 @@ def main(args):
         s.setHostRoute('192.168.122.42', s.connectionsTo(c0)[0][0])
 
     net.start()
-    
+
     for switch in network['switches']:
         net_switch = net.get(switch['name'])
         for host in switch['hosts']:
@@ -41,6 +41,18 @@ def main(args):
             link_to_switch = net_host.connectionsTo(net_switch)[0]
             net_switch.setMAC(host['switch_mac'], intf=link_to_switch[1])
             net_switch.setIP(host['switch_addr'], intf=link_to_switch[1])
+    #Add IPs and macs for inter-switch links
+    for link in network['switch_links']:
+        ld_sw1 = link['node1']
+        ld_sw2 = link['node2']
+
+        sw1 = net.get(ld_sw1['name'])
+        sw2 = net.get(ld_sw2['name'])
+
+        l = sw1.connectionsTo(sw2)
+        print("#######)
+        print(l)
+
 
     CLI(net)
     net.stop()
