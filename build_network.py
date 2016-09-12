@@ -61,8 +61,8 @@ class NetworkTopo(Topo):
                 self.addLink(switch['name'], host['name'])
 
 
-        for link in network['switch_links']:
-            self.addLink(link['node1'], link['node2'])
+        #for link in network['switch_links']:
+        #    self.addLink(link['node1'], link['node2'])
 
 class OwnMininet(Mininet):
     def configureControlNetwork(self):
