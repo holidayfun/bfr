@@ -32,8 +32,9 @@ def main(args):
 
     for switch in network['switches']:
         for host in switch['hosts']:
-            host.setARP(host['switch_addr'], host['switch_mac'])
-            host.setDefaultRoute("dev eth0 via %s" % host['switch_addr'])
+            net_host = net.get(host['name'])
+            net_host.setARP(host['switch_addr'], host['switch_mac'])
+            net_host.setDefaultRoute("dev eth0 via %s" % host['switch_addr'])
 
     net.start()
     CLI(net)
