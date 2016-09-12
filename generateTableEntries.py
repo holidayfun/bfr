@@ -20,7 +20,7 @@ def main():
         action_port = 1 #port nummerierung wi folgt: h1 -> 1, h2 -> 2,...
         for host in switch['hosts']:
             ip_entry = {'ip': host['ip'], 'prefix_len': 32, 'next_hop': host['ip'], 'action_port': action_port}
-            forward_entry = {'ip': host['ip'], 'dmac': host['ip']}
+            forward_entry = {'ip': host['ip'], 'dmac': host['mac']}
             send_frame_entry = {'port': action_port, 'rewrite_mac': host['switch_mac']}
             append_entry_file('echo "Entries for {0}"\n'.format(host['name']), switch['name'])
             add_all_entries(ip_entry, forward_entry, send_frame_entry, switch['name'], thrift_server)
