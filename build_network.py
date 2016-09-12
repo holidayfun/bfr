@@ -63,7 +63,6 @@ def main(args):
         net_switch.cmd("ip route del 10.0.0.0/8")
         net_switch.cmd("ip route del 20.0.0.0/8")
         net_switch.cmd("ip route del 20.0.0.0/8")
-        net_switch.cmd("ip route del 100.0.0.0/8")
 
     CLI(net)
     net.stop()
