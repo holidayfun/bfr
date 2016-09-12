@@ -57,6 +57,13 @@ def main(args):
         net_sw2.setIP(ld_sw2['ip'], intf=net_link[1])
         net_sw2.setMAC(ld_sw2['mac'], intf=net_link[1])
 
+    #remove entries from routing tables
+    for net_switch in net_switches:
+        net_switch.cmd("ip route del 10.0.0.0/8")
+        net_switch.cmd("ip route del 10.0.0.0/8")
+        net_switch.cmd("ip route del 20.0.0.0/8")
+        net_switch.cmd("ip route del 20.0.0.0/8")
+        net_switch.cmd("ip route del 100.0.0.0/8")
 
     CLI(net)
     net.stop()
