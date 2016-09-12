@@ -55,10 +55,10 @@ class NetworkTopo(Topo):
         Topo.__init__(self, **opts)
 
         for switch in network['switches']:
-            sw = self.addSwitch(switch['name'], sw_path=sw_path, thrift_port=thrift_port, pcap_dump = True, inNamespace = True)
+            s = self.addSwitch(switch['name'], sw_path=sw_path, thrift_port=thrift_port, pcap_dump = True, inNamespace = True)
             for host in switch['hosts']:
-                self.addHost(host['name'], ip=host['ip'], mac=host['mac'])
-                self.addLink(switch['name'], host['name'])
+                h = self.addHost(host['name'], ip=host['ip'], mac=host['mac'])
+                self.addLink(s, h)
 
 
         #for link in network['switch_links']:
