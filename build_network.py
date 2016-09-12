@@ -19,16 +19,17 @@ def main(args):
     sw_path = args.behavioral_exe
     thrift_port = args.thrift_port
     topo = NetworkTopo(sw_path, thrift_port)
-    net = OwnMininet(topo = topo, host= P4Host, switch=P4Router, controller=None)
+    
 
+    net = OwnMininet(topo = topo, host= P4Host, switch=P4Router, controller=None)
+    #adding host routes to controller to be able to connect to redis DB
+    net_switches =[net.get(switch['name']) for switch in network['switches']]
     c0 = net.addController('c0', controller=InbandController)
     net.configureControlNetwork()
-
-    net_switches = [net.get(switch['name']) for switch in network['switches']]
-
-    #adding host routes to controller
     for s in net_switches:
         s.setHostRoute('192.168.122.42', s.connectionsTo(c0)[0][0])
+
+    net.start()
 
     for switch in network['switches']:
         net_switch = net.get(switch['name'])
@@ -40,7 +41,7 @@ def main(args):
             link_to_switch = net_host.connectionsTo(net_switch)[0]
             net_switch.setMAC(host['switch_mac'], intf=link_to_switch[1])
             net_switch.setIP(host['switch_addr'], intf=link_to_switch[1])
-    net.start()
+
     CLI(net)
     net.stop()
 
@@ -61,8 +62,8 @@ class NetworkTopo(Topo):
                 self.addLink(s, h)
 
 
-        #for link in network['switch_links']:
-        #    self.addLink(link['node1'], link['node2'])
+        for link in network['switch_links']:
+            self.addLink(link['node1'], link['node2'])
 
 class OwnMininet(Mininet):
     def configureControlNetwork(self):
